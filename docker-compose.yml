@@ -1,0 +1,23 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: finance_tracker_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: finance
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  # Optional: tesseract service (if you want native binary)
+  # tesseract:
+  #   image: tesseractshadow/tesseract4re
+  #   command: ["tesseract", "--version"]
+
+volumes:
+  pgdata:
+    driver: local

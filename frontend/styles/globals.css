@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #__next { height: 100%; }
+/* Theme: Spotify-inspired dark: near-black surfaces, green accents */
+body { @apply text-gray-100; background-color: #121212; }
+h1,h2,h3,h4,h5,h6 { @apply text-white; }
+p,span,small,li,dt,dd,label { @apply text-gray-200; }
+a { color: #A7F3D0; }
+a:hover { color: #1DB954; }
+
+/* Brand: always green, no hover change */
+.brand { color: #1DB954 !important; }
+.brand:hover { color: #1DB954 !important; }
+
+/* Nav links subtle underline on hover for clarity */
+.link-muted { @apply text-gray-300 hover:text-white transition-colors; }
+.link-muted:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+/* Active nav link indicator */
+.nav-active { color: #ffffff !important; border-bottom: 2px solid #1DB954; padding-bottom: 2px; }
+
+/* Form controls */
+input, select, textarea { @apply bg-neutral-900 text-gray-100 border border-neutral-700 rounded; }
+input::placeholder, textarea::placeholder { @apply text-neutral-400; }
+select { @apply text-gray-100; }
+
+/* Tables */
+table { @apply text-gray-100; }
+thead th { @apply text-gray-300; }
+tbody td { @apply text-gray-200; }
+
+/* Animated gradient background */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(1200px 600px at 10% 10%, rgba(30,215,96,0.10), transparent 60%),
+              radial-gradient(900px 500px at 90% 20%, rgba(29,185,84,0.08), transparent 60%),
+              radial-gradient(1000px 600px at 50% 100%, rgba(0,212,255,0.06), transparent 60%),
+              linear-gradient(135deg, #121212, #0f0f0f 50%, #1a1a1a 100%);
+  animation: floatBg 20s ease-in-out infinite alternate;
+}
+
+@keyframes floatBg {
+  0% { transform: translateY(0px) scale(1); filter: hue-rotate(0deg); }
+  100% { transform: translateY(-10px) scale(1.01); filter: hue-rotate(8deg); }
+}
+
+/* Subtle card and hover utilities */
+.card { @apply bg-neutral-900/70 backdrop-blur border border-neutral-800 rounded-lg shadow-sm text-gray-100; }
+.btn { @apply inline-flex items-center justify-center rounded-md px-3 py-2 text-sm font-medium transition-transform duration-200; }
+.btn-primary { background-color: #1DB954; color: #000; }
+.btn-primary:hover { transform: translateY(-1px); filter: brightness(1.05); }
+.btn-primary:active { transform: translateY(0); filter: brightness(0.95); }
+.btn-outline { @apply border border-neutral-700 hover:bg-neutral-800 text-gray-100; }
+.link-muted { @apply text-gray-300 hover:text-white transition-colors; }

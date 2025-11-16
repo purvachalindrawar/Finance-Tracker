@@ -1,0 +1,150 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String           @id @default(cuid())
+  email           String           @unique
+  passwordHash    String
+  name            String?
+  currency        String?          @default("USD")
+  locale          String?          @default("en-US")
+  timezone        String?          @default("UTC")
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  accounts        Account[]
+  categories      Category[]
+  transactions    Transaction[]
+  budgets         Budget[]
+  recurring       RecurringRule[]
+  recommendations Recommendation[]
+  chatMessages    ChatMessage[]    @relation("UserMessages")
+  attachments     Attachment[]     @relation("UserAttachments")
+  auditLogs       AuditLog[]
+}
+
+model Account {
+  id             String          @id @default(cuid())
+  userId         String
+  user           User            @relation(fields: [userId], references: [id])
+  name           String
+  type           String
+  currency       String          @default("USD")
+  balance        Decimal         @default(0)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  transactions   Transaction[]
+  recurringRules RecurringRule[]
+}
+
+model Category {
+  id           String        @id @default(cuid())
+  userId       String
+  user         User          @relation(fields: [userId], references: [id])
+  name         String
+  parentId     String?
+  parent       Category?     @relation("CategoryToCategory", fields: [parentId], references: [id])
+  children     Category[]    @relation("CategoryToCategory")
+  transactions Transaction[]
+  budgets      Budget[]
+}
+
+model Transaction {
+  id         String      @id @default(cuid())
+  accountId  String
+  account    Account     @relation(fields: [accountId], references: [id])
+  userId     String
+  user       User        @relation(fields: [userId], references: [id])
+  amount     Decimal
+  currency   String      @default("USD")
+  date       DateTime
+  merchant   String?
+  categoryId String?
+  category   Category?   @relation(fields: [categoryId], references: [id])
+  tags       String[]
+  notes      String?
+  receiptId  String?
+  receipt    Attachment? @relation(fields: [receiptId], references: [id])
+  reconciled Boolean     @default(false)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+}
+
+model Budget {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id])
+  periodType  String
+  limitAmount Decimal
+  createdAt   DateTime @default(now())
+}
+
+model RecurringRule {
+  id             String    @id @default(cuid())
+  userId         String
+  user           User      @relation(fields: [userId], references: [id])
+  accountId      String
+  account        Account   @relation(fields: [accountId], references: [id])
+  cronExpression String?
+  ruleJson       Json?
+  nextRun        DateTime?
+}
+
+model Recommendation {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  type        String
+  payloadJson Json
+  seen        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
+model ChatRoom {
+  id        String        @id @default(cuid())
+  name      String
+  createdAt DateTime      @default(now())
+  messages  ChatMessage[]
+}
+
+model ChatMessage {
+  id           String   @id @default(cuid())
+  roomId       String
+  room         ChatRoom @relation(fields: [roomId], references: [id])
+  senderId     String
+  sender       User     @relation("UserMessages", fields: [senderId], references: [id])
+  message      String
+  metadataJson Json?
+  createdAt    DateTime @default(now())
+}
+
+model Attachment {
+  id           String        @id @default(cuid())
+  ownerId      String
+  owner        User          @relation("UserAttachments", fields: [ownerId], references: [id])
+  filename     String
+  contentType  String
+  data         Bytes
+  ocrJson      Json?
+  createdAt    DateTime      @default(now())
+  transactions Transaction[]
+}
+
+model AuditLog {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  action       String
+  metadataJson Json?
+  createdAt    DateTime @default(now())
+}
+
+/// Map Decimal to PostgreSQL numeric
+// Requires prisma/client Decimal
